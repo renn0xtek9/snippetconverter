@@ -9,7 +9,22 @@ def InduceLanguageFromFileName(filename):
 		return Languages.CPP
 	if "Python" in filename or "python" in filename:
 		return Languages.PYTHON 
-	
+	if "Bibtex" in filename:
+		return Languages.BIBTEX 
+	if "CMake" in filename: 
+		return Languages.CMAKE
+	if "Markdown" in filename:
+		return Langauges.MARKDOWN
+	if "Latex" in filename:
+		return Languages.TEX 
+	if "JSON.xml" in filename: 
+		return Languages.JSON 
+	if "html" in filename:
+		return Languages.HTML
+	if "Powershell" in filename:
+		return Languages.POWERSHELL 
+	if "Windows-batch" in filename:
+		return Languages.BAT 
 	raise Exception("Could not induce language from filename {}".format(filename))
 
 def getLanguageIdentifierforVSCode(Language):

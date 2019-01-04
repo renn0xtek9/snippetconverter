@@ -97,16 +97,11 @@ class Snippet:
 		contentlist=self.content.split('\n')
 		#TODO here workout the content tho change the variable !
 		return dict({"scope":getLanguageIdentifierforVSCode(language),"prefix":self.name,"body":contentlist,"description":""})
-		
-		
-	
 
 def ConvertKateToVScode(katensippet,vscodesnippet):
 	snippets=list()
 	import xml.etree.ElementTree as ET
 	import json 
-	
-	
 	#First we parse the Kate xml snippet to get a list of snippet that written in the file 
 	tree = ET.parse(katensippet)
 	root = tree.getroot()
@@ -124,16 +119,9 @@ def ConvertKateToVScode(katensippet,vscodesnippet):
 	for snippet in snippets:
 		outputsnippets[snippet.name]=snippet.toVSCode(language)
 		
-	import pprint
-	
-	
 	f=open(vscodesnippet,"w")
-	#pprint.pprint(outputsnippets,f)
 	f.write(json.dumps(outputsnippets,indent=4,sort_keys=True))
-	#from io import StringIO
-	#io=StringIO(outputsnippets)
-	#jsonobject=json.dumps(outputsnippets)
-	#jsonobject.dump(vscodesnippet)
+	
 
 def main(argv):
 	inputfile = ''
@@ -181,3 +169,5 @@ def main(argv):
 
 if __name__ == "__main__":
         main(sys.argv[1:])
+
+
