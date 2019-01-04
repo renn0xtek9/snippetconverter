@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import sys, getopt
-
+from Languages import getLanguageIdentifierforVSCode,InduceLanguageFromFileName,Languages
 class bcolors:
 	NC='\033[0m'
 	Bold='\033[1m'
@@ -92,12 +92,22 @@ class Snippet:
 	def __init__(self,name,content):
 		self.name=name 
 		self.content=content
+		
+	def toVSCode(self,language):
+		contentlist=self.content.split('\n')
+		#TODO here workout the content tho change the variable !
+		return dict({"scope":getLanguageIdentifierforVSCode(language),"prefix":self.name,"body":contentlist,"description":""})
+		
+		
 	
 
 def ConvertKateToVScode(katensippet,vscodesnippet):
 	snippets=list()
 	import xml.etree.ElementTree as ET
 	import json 
+	
+	
+	#First we parse the Kate xml snippet to get a list of snippet that written in the file 
 	tree = ET.parse(katensippet)
 	root = tree.getroot()
 	for items in root.findall("item"):
@@ -107,9 +117,23 @@ def ConvertKateToVScode(katensippet,vscodesnippet):
 			snippets.append(Snippet(match.text,fillin.text))
 		except Exception as e:
 			print(e)		
-			pass
+	#Second we induce which language it is 
+	language=InduceLanguageFromFileName(katensippet)
 	
-	pass
+	outputsnippets=dict()
+	for snippet in snippets:
+		outputsnippets[snippet.name]=snippet.toVSCode(language)
+		
+	import pprint
+	
+	
+	f=open(vscodesnippet,"w")
+	#pprint.pprint(outputsnippets,f)
+	f.write(json.dumps(outputsnippets,indent=4,sort_keys=True))
+	#from io import StringIO
+	#io=StringIO(outputsnippets)
+	#jsonobject=json.dumps(outputsnippets)
+	#jsonobject.dump(vscodesnippet)
 
 def main(argv):
 	inputfile = ''
