@@ -1,6 +1,6 @@
 from enum import Enum
 from itertools import count
-
+#Based on visual studio code identifiers https://code.visualstudio.com/docs/languages/identifiers
 Languages=Enum("Languages",zip(['ABAP','BAT','BIBTEX','CLOJURE','COFFEESCRIPT','C','CPP','CSHARP','CSS','DIFF','DOCKERFILE','FSHARP','GITCOMMIT','GITREBASE','GO','GROOVY','HANDLEBARS','HTML','INI','JAVA','JAVASCRIPT','JAVASCRIPTREACT','JSON','JSONC','LATEX','LESS','LUA','MAKEFILE','MARKDOWN','OBJECTIVEC','OBJECTIVECPP','PERL','PHP','POWERSHELL','JADE','PYTHON','R','RAZOR','RUBY','RUST','SCSS','SHADERLAB','SHELLSCRIPT','SQL','SWIFT','TYPESCRIPT','TYPESCRIPTREACT','TEX','VB','XML','XSL','YAML'],count()))
 
 
@@ -13,10 +13,14 @@ def InduceLanguageFromFileName(filename):
 		return Languages.BIBTEX 
 	if "CMake" in filename: 
 		return Languages.CMAKE
+	if "Makefile" in filename:
+		return Languages.MAKEFILE
 	if "Markdown" in filename:
-		return Langauges.MARKDOWN
-	if "Latex" in filename:
+		return Languages.MARKDOWN
+	if "Latex" in filename or "LaTeX" in filename:
 		return Languages.TEX 
+	if "Javascript" in filename or "javascript" in filename:
+		return Languages.JAVASCRIPT
 	if "JSON.xml" in filename: 
 		return Languages.JSON 
 	if "html" in filename:
@@ -25,6 +29,8 @@ def InduceLanguageFromFileName(filename):
 		return Languages.POWERSHELL 
 	if "Windows-batch" in filename:
 		return Languages.BAT 
+	if "C snippets" in filename: 
+		return Languages.C
 	raise Exception("Could not induce language from filename {}".format(filename))
 
 def getLanguageIdentifierforVSCode(Language):

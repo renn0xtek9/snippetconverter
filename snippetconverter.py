@@ -87,17 +87,66 @@ def InduceIDEFromFile(filename):
 		return IDE.VSCODE 
 	return IDE.UNKNOWN
 	
-	
+
+
+"""@class Variable 
+@brief This describe a variable in a snipppet.
+@member name the name of the varaibles withoud specific extras like ( { $ etc e.g. foobar 
+@member original text the original full text e.g. ${foobar}
+"""
+class Variable:
+	def __init__(self,name,originaltext):
+		self.name=name 
+		self.originaltext=originaltext 
+
+"""@class Snippet 
+@brief This describe a snippet 
+@member name the name of the snippet (this is what tyou gonna type in the IDE to match the snippet)
+@member content the content of the snippet 
+@member variables the list of variables contained in this snippet. They will have to be formatted in the output IDE format when creating a new snippet file!
+"""	
 class Snippet: 
-	def __init__(self,name,content):
+	def __init__(self,name,content,variables):
 		self.name=name 
 		self.content=content
+		self.variables=variables
 		
+	"""@function toVSCode()
+	@brief print the snippet into Visual Studio Code format
+	@param language the language (c++, python, javascript, brainfuck... )relevant for this snippet 
+	"""
 	def toVSCode(self,language):
 		contentlist=self.content.split('\n')
-		#TODO here workout the content tho change the variable !
+		#Now modify the content regarding variables to ensure are correcty formatted !
+		#See https://code.visualstudio.com/docs/editor/userdefinedsnippets
+		for i in range(0,len(contentlist)):
+			for v in self.variables:
+				if v.originaltext in contentlist[i]:
+					contentlist[i].replace(v.originaltext,str("{"+v.name+"}"))
 		return dict({"scope":getLanguageIdentifierforVSCode(language),"prefix":self.name,"body":contentlist,"description":""})
 
+
+"""@function getVariableListsFromKateSnippet(content)
+@brief this extract all the vaiables that exist inside a Kate Snipppet 
+@param content this is the content (array of lines) of the snippet 
+"""
+def getVariableListsFromKateSnippet(content):
+	import re
+	variables=list()
+	for c in content:
+		vars=re.findall(r'\$\{\w+\}',c)
+		for v in vars:
+			name=re.sub(r'\$\{','',v)
+			name=re.sub(r'\}','',name)
+			if not name in [var.name for var in variables]:
+				variables.append(Variable(name,v))
+	return variables
+
+"""ConvertKateToVSCode
+@brief Convert a snippet from a Kate/KDevelop snippet format to a visual studio code 
+@param katensippet. URL of the Kate snippet file 
+@param vscodesnippet. URL of the Visual Studio Code snippet file
+"""
 def ConvertKateToVScode(katensippet,vscodesnippet):
 	snippets=list()
 	import xml.etree.ElementTree as ET
@@ -109,7 +158,8 @@ def ConvertKateToVScode(katensippet,vscodesnippet):
 		try: 
 			match=items.find("match")
 			fillin=items.find("fillin")
-			snippets.append(Snippet(match.text,fillin.text))
+			variables=getVariableListsFromKateSnippet(fillin.text.split('\n'))
+			snippets.append(Snippet(match.text,fillin.text,variables))
 		except Exception as e:
 			print(e)		
 	#Second we induce which language it is 
@@ -148,6 +198,10 @@ def main(argv):
 		elif opt in ("-o", "--ouput"):
 			outputfile = arg
 	#Write the code below, bare in minde functions must be forwarde declared
+
+	if len(inputfile)==0 or len(outputfile)==0:
+		usage() 
+		sys.exit(1)
 
 	
 	#Quit if inputfile does not exist
