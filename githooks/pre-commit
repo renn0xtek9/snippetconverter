@@ -1,0 +1,10 @@
+#!/bin/bash 
+set -euxo pipefail
+while read line 
+do 
+	echo "Formatting commit $line"
+    black $line
+    pylint $line 
+done < <(git diff --name-only --cached --diff-filter=ACMRT |grep "\.*.py") 
+
+

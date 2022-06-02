@@ -8,9 +8,9 @@ import json
 import os.path
 from enum import Enum
 from typing import TypedDict
-from Languages import (
-    getLanguageIdentifierforVSCode,
-    InduceLanguageFromFileName,
+from languages import (
+    get_language_identifier_for_vscode,
+    induce_language_from_file_name,
 )
 
 
@@ -83,7 +83,7 @@ class Snippet:
 
         return dict(
             {
-                "scope": getLanguageIdentifierforVSCode(language),
+                "scope": get_language_identifier_for_vscode(language),
                 "prefix": self.name,
                 "body": contentlist,
                 "description": "",
@@ -124,7 +124,7 @@ def convert_from_kate_to_vscode(katensippet, vscodesnippet):
         variables = get_variable_lists_from_kate_snippet(fillin.text.split("\n"))
         snippets.append(Snippet(match.text, fillin.text, variables))
     # Second we induce which language it is
-    language = InduceLanguageFromFileName(katensippet)
+    language = induce_language_from_file_name(katensippet)
 
     outputsnippets = dict()
     for snippet in snippets:
