@@ -33,7 +33,6 @@ def induce_ide_from_file(filename):
     """Induce which IDE was used to create the file based on its name"""
     if "ktexteditor" in filename or "kdevelop" in filename:
         return IDE.KATE
-    # TODO implement some better ways .(document what other IDE have for name, to ensure we won't have double match if using only *.json) pylint: disable=W0511
     if "Code/User" in filename:
         return IDE.VSCODE
     return IDE.UNKNOWN
@@ -68,18 +67,13 @@ class Snippet:
         @param language the language (c++, python, javascript, brainfuck... )relevant for this snippet
         """
         contentlist = self.content.split("\n")
-        # Now modify the content regarding variables to ensure are correcty formatted !
         # See https://code.visualstudio.com/docs/editor/userdefinedsnippets
         for content in enumerate(contentlist):
             for variable in self.variables:
-                # print(variable)
                 if variable["original_text"] in content[1]:
                     content[1].replace(
                         variable["original_text"], str("{" + variable["name"] + "}")
                     )
-                    # print("REPLACED !!!")
-                    # print(content[1])
-                    # print(contentlist)
 
         return dict(
             {
