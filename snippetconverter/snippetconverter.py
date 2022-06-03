@@ -8,7 +8,7 @@ import json
 import os.path
 from enum import Enum
 from typing import TypedDict
-from languages import (
+from snippetconverter.languages import (
     get_language_identifier_for_vscode,
     induce_language_from_file_name,
 )
@@ -143,12 +143,14 @@ def convert_vscode_to_kate(vscodesnippet, katesnippet):
     sys.exit(2)
 
 
-def main(argv):
+def main():
     """module main"""
     inputfile = ""
     outputfile = ""
     try:
-        opts, args = getopt.getopt(argv, "hi:o:", ["errorcode", "input", "ouput"])
+        opts, args = getopt.getopt(
+            sys.argv[1:], "hi:o:", ["errorcode", "input", "ouput"]
+        )
 
     except getopt.GetoptError:
         usage()
@@ -164,7 +166,6 @@ def main(argv):
 
         elif opt in ("-o", "--ouput"):
             outputfile = arg
-    # Write the code below, bare in minde functions must be forwarde declared
 
     if len(inputfile) == 0 or len(outputfile) == 0:
         usage()
@@ -188,7 +189,3 @@ def main(argv):
         convert_from_kate_to_vscode(inputfile, outputfile)
     if ide_in == IDE.VSCODE and ide_out == IDE.KATE:
         convert_vscode_to_kate(inputfile, outputfile)
-
-
-if __name__ == "__main__":
-    main(sys.argv[1:])

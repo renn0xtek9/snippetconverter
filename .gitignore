@@ -1,2 +1,9 @@
 *.pyc
 __pycache__/*
+dist/*
+*.egg-info
+build/
+#IDEs
+*.kdev4
+.kdev4/
+.vscode/
