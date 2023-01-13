@@ -1,0 +1,15 @@
+name: test
+
+on: [push, pull_request]
+
+jobs:
+  run-unit-tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: install
+        run: python3 -m pip install -r requirements.txt
+      - name: unit-tests
+        run: coverage run -m tests
+      - name: code-coverage
+        run: coverage report --fail-under=100

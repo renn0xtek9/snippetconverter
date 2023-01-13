@@ -1,13 +1,13 @@
 """unit tests of snippetconverter_test.py"""
 from snippetconverter.snippetconverter import (
-    get_variable_lists_from_kate_snippet,
-    Variable,
-    induce_ide_from_file,
     IDE,
+    Variable,
+    get_variable_lists_from_kate_snippet,
+    induce_ide_from_file,
 )
 
 
-def test_get_varaible_lists_from_kate_snippet():
+def test_get_variable_lists_from_kate_snippet():
     """
     @brief test the get_variable_lists_from_kate_snippet
     """
@@ -25,7 +25,7 @@ def test_induce_ide_from_file():
     """
     # pylint: disable=W1401
     kate_snippet_file_path = (
-        "/home/foo/.local/share/ktexteditor_snippets/data/CMake\ snippets.xml"
+        "/home/foo/.local/share/ktexteditor_snippets/data/CMake snippets.xml"
     )
     vscode_snippet_file_path = "/home/foo/.config/Code/User/snippets/cmake.json"
     assert IDE.VSCODE == induce_ide_from_file(vscode_snippet_file_path)
