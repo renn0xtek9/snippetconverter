@@ -1,13 +1,14 @@
 #!/usr/bin/python3
 """Convert snippet from Kate/KDevelop to VSCode and vice versa """
 import sys
-import getopt
+import argparse
 import re
 import xml.etree.ElementTree as ET
 import json
 import os.path
 from enum import Enum
 from typing import TypedDict
+from pathlib import Path
 from snippetconverter.languages import (
     get_language_identifier_for_vscode,
     induce_language_from_file_name,
@@ -33,7 +34,6 @@ def induce_ide_from_file(filename):
     """Induce which IDE was used to create the file based on its name"""
     if "ktexteditor" in filename or "kdevelop" in filename:
         return IDE.KATE
-    # TODO implement some better ways .(document what other IDE have for name, to ensure we won't have double match if using only *.json) pylint: disable=W0511
     if "Code/User" in filename:
         return IDE.VSCODE
     return IDE.UNKNOWN
@@ -68,18 +68,13 @@ class Snippet:
         @param language the language (c++, python, javascript, brainfuck... )relevant for this snippet
         """
         contentlist = self.content.split("\n")
-        # Now modify the content regarding variables to ensure are correcty formatted !
         # See https://code.visualstudio.com/docs/editor/userdefinedsnippets
         for content in enumerate(contentlist):
             for variable in self.variables:
-                # print(variable)
                 if variable["original_text"] in content[1]:
                     content[1].replace(
                         variable["original_text"], str("{" + variable["name"] + "}")
                     )
-                    # print("REPLACED !!!")
-                    # print(content[1])
-                    # print(contentlist)
 
         return dict(
             {
@@ -107,7 +102,7 @@ def get_variable_lists_from_kate_snippet(content):
     return variables
 
 
-def convert_from_kate_to_vscode(katensippet, vscodesnippet):
+def convert_from_kate_to_vscode(katensippet:Path, vscodesnippet:Path):
     """
     @brief Convert a snippet from a Kate/KDevelop snippet format to a visual studio code
     @param katensippet. URL of the Kate snippet file
@@ -116,7 +111,7 @@ def convert_from_kate_to_vscode(katensippet, vscodesnippet):
     snippets = list()
 
     # First we parse the Kate xml snippet to get a list of snippet that written in the file
-    tree = ET.parse(katensippet)
+    tree = ET.parse(katensippet.absolute())
     root = tree.getroot()
     for items in root.findall("item"):
         match = items.find("match")
@@ -124,13 +119,13 @@ def convert_from_kate_to_vscode(katensippet, vscodesnippet):
         variables = get_variable_lists_from_kate_snippet(fillin.text.split("\n"))
         snippets.append(Snippet(match.text, fillin.text, variables))
     # Second we induce which language it is
-    language = induce_language_from_file_name(katensippet)
+    language = induce_language_from_file_name(str(katensippet.absolute()))
 
     outputsnippets = dict()
     for snippet in snippets:
         outputsnippets[snippet.name] = snippet.to_vs_code(language)
 
-    vscode_snippetfile = open(vscodesnippet, "w")
+    vscode_snippetfile = open(vscodesnippet.absolute(), "w")
     vscode_snippetfile.write(json.dumps(outputsnippets, indent=4, sort_keys=True))
 
 
@@ -139,53 +134,31 @@ def convert_vscode_to_kate(vscodesnippet, katesnippet):
     """@brief Convert a Visual Studio Code snippet to a Kate Snippet
     @param vscodesnippet URL to the visual studio snippet file
     @param katesnippet URL to the Kate/KDevelop snippet file"""
-    print("Conversion from Visual Studio to Kate is not yet implemented")
-    sys.exit(2)
+    raise NotImplementedError("Conversion from Visual Studio to Kate is not yet implemented")
 
 
-def main():
+def main(argv):
     """module main"""
-    inputfile = ""
-    outputfile = ""
-    try:
-        opts, args = getopt.getopt(
-            sys.argv[1:], "hi:o:", ["errorcode", "input", "ouput"]
-        )
+    ap = argparse.ArgumentParser(description='Kate to VSCode snippet converter')
+    ap.add_argument("-i","--input",help="input snippet file",required=True)
+    ap.add_argument("-o","--output",help="output snippet file",required=True)
+    args = ap.parse_args(argv[1:])
 
-    except getopt.GetoptError:
-        usage()
-        sys.exit(1)
+    if not os.path.isfile(args.input):
+        raise FileNotFoundError(str("Input file: {} does not exist".format(args.input)))
 
-    for opt, arg in opts:
-        if opt == "-h":
-            usage()
-            sys.exit()
-
-        elif opt in ("-i", "--input"):
-            inputfile = arg
-
-        elif opt in ("-o", "--ouput"):
-            outputfile = arg
-
-    if len(inputfile) == 0 or len(outputfile) == 0:
-        usage()
-        sys.exit(1)
-
-    if not os.path.isfile(inputfile):
-        raise FileNotFoundError(str("File: {} does not exist".format(inputfile)))
-
-    ide_in = induce_ide_from_file(inputfile)
-    ide_out = induce_ide_from_file(outputfile)
+    ide_in = induce_ide_from_file(args.input)
+    ide_out = induce_ide_from_file(args.output)
     if ide_in == IDE.UNKNOWN:
-        raise Exception(
-            str("Could not find which IDE the file {} comes from.".format(inputfile))
+        raise RuntimeError(
+            str("Could not find which IDE the input file {} comes from.".format(args.input))
         )
     if ide_out == IDE.UNKNOWN:
-        raise Exception(
-            str("Could not find which IDE the file {} comes from.".format(outputfile))
+        raise RuntimeError(
+            str("Could not find which IDE the output file {} comes from.".format(args.output))
         )
 
     if ide_in == IDE.KATE and ide_out == IDE.VSCODE:
-        convert_from_kate_to_vscode(inputfile, outputfile)
+        convert_from_kate_to_vscode(args.input, args.output)
     if ide_in == IDE.VSCODE and ide_out == IDE.KATE:
-        convert_vscode_to_kate(inputfile, outputfile)
+        convert_vscode_to_kate(args.input, args.output)

@@ -66,7 +66,7 @@ LANGUAGES = Enum(
 )
 
 
-def induce_language_from_file_name(filename):
+def induce_language_from_file_name(filename: str):
     """identify languaged of snippet file based on filename"""
     # pylint: disable=R0911
     # pylint: disable=R0912
@@ -103,7 +103,7 @@ def induce_language_from_file_name(filename):
     raise Exception("Could not induce language from filename {}".format(filename))
 
 
-def get_language_identifier_for_vscode(language):
+def get_language_identifier_for_vscode(language: LANGUAGES):
     """get language identiger for vscode based on language"""
     languageidentifier = dict(
         {
@@ -162,8 +162,4 @@ def get_language_identifier_for_vscode(language):
             "YAML": "yaml",
         }
     )
-    try:
-        return languageidentifier[language.name]
-    except ValueError:
-        print("No known VSCode language identifier for language {}".format(language))
-        raise ValueError
+    return languageidentifier[language.name]
