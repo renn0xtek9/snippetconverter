@@ -1,1 +1,7 @@
 lxml==4.6.3
+twine==4.0.2
+pre-commit
+coverage
+pytest
+black
+pylint

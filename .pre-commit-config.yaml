@@ -1,0 +1,39 @@
+default_stages: [commit]
+repos:
+  - repo: meta
+    hooks:
+      - id: check-useless-excludes
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+  - repo: https://github.com/psf/black
+    rev: 22.10.0
+    hooks:
+      - id: black
+        language_version: python3
+        args: [--quiet, --config, pyproject.toml] # to avoid black picking up the wrong pyproject.toml
+        additional_dependencies: ["click==8.0.4"]
+  - repo: https://github.com/pycqa/flake8
+    rev: 5.0.4
+    hooks:
+      - id: flake8
+        args: [--max-line-length=1024, --extend-ignore=E203]
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.8.0.4
+    hooks:
+      - id: shellcheck
+        exclude: githooks/pre-commit
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.13.0
+    hooks:
+      - id: typos
+        files: |
+          (?x)^(
+          )
