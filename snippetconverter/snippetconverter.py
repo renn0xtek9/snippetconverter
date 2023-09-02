@@ -167,6 +167,6 @@ def main():
         )
 
     if ide_in == IDE.KATE and ide_out == IDE.VSCODE:
-        convert_from_kate_to_vscode(args.input, args.output)
+        convert_from_kate_to_vscode(Path(args.input), Path(args.output))
     if ide_in == IDE.VSCODE and ide_out == IDE.KATE:
-        convert_vscode_to_kate(args.input, args.output)
+        convert_vscode_to_kate(Path(args.input), Path(args.output))

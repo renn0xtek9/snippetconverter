@@ -8,7 +8,7 @@ snippetconverter.py can convert the snippet used in Kate or KDevelop IDE to the 
 
 setup(
     name="kate-vscode-snippetconverter",
-    version="0.3.2",
+    version="0.3.3",
     description="A tool to convert snippet from Kate/KDevelop to VSCode",
     long_description=LONG_DESCRIPTION,
     author="Maxime Haselbauer",
